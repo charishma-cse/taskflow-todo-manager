@@ -1,0 +1,73 @@
+{
+  "info": {
+    "name": "TaskFlow — To-Do Task Manager API",
+    "description": "Smoke tests for the Flask REST API. Set baseUrl to http://127.0.0.1:5000 for local testing or your Render URL after deployment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:5000" },
+    { "key": "taskId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/health" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('API is healthy', function () { pm.response.to.have.status(200); });"] } }]
+    },
+    {
+      "name": "List tasks",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/tasks" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Task list returns 200', function () { pm.response.to.have.status(200); });", "pm.test('Response contains a tasks array', function () { pm.expect(pm.response.json().tasks).to.be.an('array'); });"] } }]
+    },
+    {
+      "name": "Create task",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Postman API test task\",\n  \"description\": \"Created from the TaskFlow Postman collection\",\n  \"deadline\": \"2026-12-31\",\n  \"priority\": \"high\",\n  \"status\": \"pending\"\n}" },
+        "url": "{{baseUrl}}/api/tasks"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Task created with 201', function () { pm.response.to.have.status(201); });", "const response = pm.response.json();", "if (response.task && response.task.id) pm.collectionVariables.set('taskId', response.task.id);"] } }]
+    },
+    {
+      "name": "Filter completed tasks",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/tasks?status=completed" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Completed filter returns 200', function () { pm.response.to.have.status(200); });", "pm.test('All returned tasks are completed', function () { pm.response.json().tasks.forEach(function (task) { pm.expect(task.status).to.eql('completed'); }); });"] } }]
+    },
+    {
+      "name": "Read task by ID",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/tasks/{{taskId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Task lookup returns 200', function () { pm.response.to.have.status(200); });"] } }]
+    },
+    {
+      "name": "Update task status (PATCH)",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"status\": \"completed\"\n}" },
+        "url": "{{baseUrl}}/api/tasks/{{taskId}}"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Task status updated', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().task.status).to.eql('completed'); });"] } }]
+    },
+    {
+      "name": "Update task (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated API test task\",\n  \"description\": \"Updated via PUT\",\n  \"deadline\": \"2026-12-31\",\n  \"priority\": \"medium\",\n  \"status\": \"pending\"\n}" },
+        "url": "{{baseUrl}}/api/tasks/{{taskId}}"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Task updated with 200', function () { pm.response.to.have.status(200); });"] } }]
+    },
+    {
+      "name": "Stats summary",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/stats" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Stats returns expected summary fields', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.have.property('total'); pm.expect(pm.response.json()).to.have.property('overdue'); });"] } }]
+    },
+    {
+      "name": "Delete task",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/api/tasks/{{taskId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Task deletion succeeds', function () { pm.response.to.have.status(200); });"] } }]
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#EDE6FA">
+  <title>TaskFlow — My Tasks</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="TaskFlow home">UI</a>
+      <nav class="side-nav">
+        <button class="nav-icon active" type="button" data-nav="all" aria-label="All tasks" title="All tasks">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5 12 3l8.5 7.5M5.5 9v11h13V9M9.5 20v-6h5v6"/></svg>
+        </button>
+        <button class="nav-icon" type="button" data-nav="pending" aria-label="Pending tasks" title="Pending tasks">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h5M8 17h3"/></svg>
+        </button>
+        <button class="nav-icon" type="button" data-nav="completed" aria-label="Completed tasks" title="Completed tasks">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M14 3.3A8.8 8.8 0 0 1 20.7 10H14z"/></svg>
+        </button>
+        <button class="nav-icon" type="button" id="calendarNav" aria-label="Filter tasks by deadline" title="Filter by deadline">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M7.5 3v4M16.5 3v4M4 9h16M8 13h3M8 16h7"/></svg>
+        </button>
+        <button class="nav-icon" type="button" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 15A8.5 8.5 0 0 1 9 3.8 8.6 8.6 0 1 0 20.2 15Z"/></svg>
+        </button>
+        <button class="nav-icon" type="button" id="settingsButton" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.1.9-1.4 2.4-1.4-.6a7.6 7.6 0 0 1-1.6.9l-.2 1.5h-2.8l-.2-1.5a7.6 7.6 0 0 1-1.6-.9l-1.4.6-1.4-2.4 1.1-.9A7.5 7.5 0 0 1 7.6 13l-1.5-.3v-2.8l1.5-.2a7.6 7.6 0 0 1 .9-1.6l-.6-1.4 2.4-1.4.9 1.1a7.5 7.5 0 0 1 1.8-.1l.3-1.5h2.8l.2 1.5a7.6 7.6 0 0 1 1.6.9l1.4-.6 1.4 2.4-1.1.9a7.5 7.5 0 0 1 .1 1.8l1.5.3v2.8l-1.5.2a7.6 7.6 0 0 1-.3.4Z"/></svg>
+        </button>
+      </nav>
+    </aside>
+
+    <main class="main-panel">
+      <header class="topbar">
+        <div class="breadcrumbs"><span class="crumb-dot"></span><span>Workspace</span><span class="crumb-slash">/</span><strong>Tasks</strong></div>
+        <div class="top-actions">
+          <label class="search-wrap" id="topSearchWrap">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+            <input id="searchInput" type="search" placeholder="Search tasks..." aria-label="Search tasks">
+          </label>
+          <button class="icon-button notification-button" type="button" id="notificationsButton" aria-label="Notifications" title="Notifications">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notification-dot"></span>
+          </button>
+          <button class="avatar-button" type="button" id="profileButton" aria-label="Profile" title="Your profile">C</button>
+        </div>
+      </header>
+
+      <section class="page-content">
+        <div class="page-heading-row">
+          <div>
+            <p class="eyebrow">YOUR WORKSPACE</p>
+            <h1>My Tasks</h1>
+            <p class="page-subtitle">Keep your day clear, focused, and moving forward.</p>
+          </div>
+        </div>
+
+        <div class="stats-strip" aria-label="Task summary">
+          <div class="stat-item"><span class="stat-mark stat-mark-total"></span><div><span class="stat-label">Total tasks</span><strong id="totalCount">0</strong></div></div>
+          <div class="stat-divider"></div>
+          <div class="stat-item"><span class="stat-mark stat-mark-pending"></span><div><span class="stat-label">Pending</span><strong id="pendingCount">0</strong></div></div>
+          <div class="stat-divider"></div>
+          <div class="stat-item"><span class="stat-mark stat-mark-complete"></span><div><span class="stat-label">Completed</span><strong id="completedCount">0</strong></div></div>
+          <div class="stat-divider"></div>
+          <div class="stat-item"><span class="stat-mark stat-mark-overdue"></span><div><span class="stat-label">Overdue</span><strong id="overdueCount">0</strong></div></div>
+        </div>
+
+        <div class="task-toolbar">
+          <div class="tabs" role="tablist" aria-label="Task status tabs">
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="pending">Assigned Tasks</button>
+            <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="all">Accepted Tasks <span class="tab-count" id="allTabCount">0</span></button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="completed">Review Tasks</button>
+          </div>
+          <div class="toolbar-controls">
+          <div class="filter-row">
+            <label class="filter-control date-control">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>
+              <input id="deadlineFilter" type="date" aria-label="Filter by deadline" title="Filter by deadline">
+            </label>
+            <label class="filter-control select-control">
+              <select id="statusFilter" aria-label="Choose status">
+                <option value="all">Choose Status</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In progress</option>
+                <option value="completed">Completed</option>
+              </select>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+            </label>
+            <label class="filter-control select-control priority-control">
+              <select id="priorityFilter" aria-label="Choose priority">
+                <option value="all">All priorities</option>
+                <option value="high">High priority</option>
+                <option value="medium">Medium priority</option>
+                <option value="low">Low priority</option>
+              </select>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+            </label>
+            <button class="filter-button" type="button" id="applyFiltersButton">Filter</button>
+            <button class="clear-filter-button" type="button" id="clearFiltersButton" title="Clear all filters">Clear</button>
+          </div>
+          <button class="primary-button" type="button" id="createTaskButton">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Create New Task</span>
+          </button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-topline"><div><h2>Task list</h2><span id="tableResultLabel">Your tasks, all in one place</span></div><span class="live-indicator"><span></span> Live list</span></div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr>
+                <th class="task-title-col">Title</th><th>Priority</th><th>Status</th><th>Created by</th><th>Date assigned</th><th>Due date</th><th class="actions-heading">Actions</th>
+              </tr></thead>
+              <tbody id="taskTableBody">
+                <tr><td colspan="7"><div class="loading-state"><span class="spinner"></span>Loading your tasks...</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <span class="footer-note" id="footerNote">Showing your tasks</span>
+            <div class="pagination-controls"><label>Rows per page <select id="rowsPerPage" aria-label="Rows per page"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option></select></label><span id="paginationLabel">0–0 of 0</span><button class="page-arrow" id="prevPage" type="button" aria-label="Previous page" disabled>‹</button><button class="page-arrow" id="nextPage" type="button" aria-label="Next page" disabled>›</button></div>
+          </div>
+        </div>
+        <footer class="page-footer"><span>TaskFlow <span class="footer-heart">✦</span> Built to help you do your best work.</span><span>Securely saved to your task database</span></footer>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="modal-backdrop" id="taskModalBackdrop" hidden>
+    <section class="task-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header"><div><p class="eyebrow" id="modalEyebrow">TASK DETAILS</p><h2 id="modalTitle">Create a task</h2></div><button class="modal-close" type="button" data-close-modal aria-label="Close dialog">×</button></div>
+      <form id="taskForm" novalidate>
+        <input type="hidden" id="taskId">
+        <label class="form-field"><span>Task title <b>*</b></span><input id="taskTitle" name="title" maxlength="180" placeholder="e.g. Prepare the project demo" required><small class="field-error" id="titleError"></small></label>
+        <label class="form-field"><span>Description <em>Optional</em></span><textarea id="taskDescription" name="description" rows="3" placeholder="Add a few details so you know what to do..."></textarea></label>
+        <div class="form-grid">
+          <label class="form-field"><span>Due date</span><input id="taskDeadline" name="deadline" type="date"></label>
+          <label class="form-field"><span>Priority</span><select id="taskPriority" name="priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></label>
+        </div>
+        <label class="form-field"><span>Status</span><select id="taskStatus" name="status"><option value="pending">Pending</option><option value="in_progress">In progress</option><option value="completed">Completed</option></select></label>
+        <div class="modal-footer"><button class="secondary-button" type="button" data-close-modal>Cancel</button><button class="primary-button" type="submit" id="saveTaskButton">Save task <span aria-hidden="true">→</span></button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="detailModalBackdrop" hidden>
+    <section class="task-modal detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <div class="modal-header"><div><p class="eyebrow">TASK OVERVIEW</p><h2 id="detailTitle">Task details</h2></div><button class="modal-close" type="button" data-close-detail aria-label="Close dialog">×</button></div>
+      <div id="detailContent" class="detail-content"></div>
+      <div class="modal-footer"><button class="secondary-button" type="button" data-close-detail>Close</button><button class="primary-button" type="button" id="editFromDetails">Edit task <span aria-hidden="true">→</span></button></div>
+    </section>
+  </div>
+
+  <div class="confirm-backdrop" id="confirmBackdrop" hidden>
+    <section class="confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <span class="confirm-icon">!</span><h2 id="confirmTitle">Delete this task?</h2><p>This action can't be undone. The task will be permanently removed.</p>
+      <div class="modal-footer"><button class="secondary-button" type="button" id="cancelDelete">Keep task</button><button class="danger-button" type="button" id="confirmDelete">Delete task</button></div>
+    </section>
+  </div>
+</body>
+</html>
